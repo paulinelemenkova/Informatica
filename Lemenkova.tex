@@ -1,0 +1,232 @@
+\documentclass{infor}
+
+\volume{0}
+\issue{0}
+\pubyear{2021}
+\articletype{research-article}
+\doi{0000}
+
+%startlocaldefs
+
+% local macros
+%\newtheorem{thm}{Theorem}
+%\newtheorem{prop}{Proposition}
+%\newtheorem{cor}{Corollary}
+%\newtheorem{lem}{Lemma}
+
+%\theoremstyle{remark}
+%\newtheorem{defn}{Definition}
+%\newtheorem{rem}{Remark}
+%\newtheorem{exmp}{Example}
+%\newtheorem{note}{Note}
+
+%endlocaldefs
+\usepackage{float}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\pretitle{Research Article}
+
+\title{GRASS GIS for Processing Landsat TM Images by Raster Calculations in r.mapcalc, d.rgb and r.slope.aspect Modules}
+%\title{\thanksref{t1}}
+%\thankstext[id=t1]{}
+
+%\author[a]{\inits{P.}\fnms{} \snm{}\thanksref{c1}\ead[label=e1]{}\orcid{0000-0002-5759-1089}}
+%\thankstext[type=corresp,id=c1]{Corresponding author.}
+\author[a,b]{\inits{P.}\fnms{Polina} \snm{Lemenkova}\thanksref{c1}\ead[label=e1]{polina.lemenkova@ulb.be}\ead[label=e2]{pauline.lemenkova@gmail.com}\orcid{https://orcid.org/0000-0002-5759-1089}\bio{Polina Lemenkova is a }}
+\thankstext[type=corresp,id=c1]{Corresponding author.}
+%\thankstext[id=f1]{Simple footnote}
+\address[a]{Avenue Franklin Roosevelt 50, Brussels 1000, \institution{Université Libre de Bruxelles, École polytechnique de Bruxelles (Brussels Faculty of Engineering), Laboratory of Image Synthesis and Analysis (LISA), Building L, Campus de Solbosch}, \cny{Belgium}}
+\address[b]{Bolshaya Gruzinskaya Str. 10/1, Moscow, 123995, \institution{Schmidt Institute of Physics of the Earth, Russian Academy of Sciences. Department of Natural Disasters, Anthropogenic Hazards and Seismicity of the Earth. Laboratory of Regional Geophysics and Natural Disasters}, \cny{Russia}}
+
+%Email: polina.lemenkova@ulb.be 
+
+\runtitle{GRASS GIS for Processing Landsat TM Images}  %use if necessary to change auto-generated           
+%\runauthor{} %use if necessary to change auto-generated            
+
+%\dedicated{}
+
+\begin{abstract}
+This study examines utilization of the GRASS GIS for raster image analysis with aim to perform topographic analysis, land surface temperature, correlation between Landsat ETM+ channels and color composites. Study area covers eastern region of China, Yellow Sea, Shandong Province, Qingdao area. The methodology is based on GRASS GIS software, its modules and scripting approach. The data include two satellite Landsat TM images for 19 May 2009 and September 10 2004 captured from the GloVis USGS website and imported to GRASS GIS using GDAL library by ‘r.in.gdal’ module. A comparative analysis of the two images  were used to map topographic area coverage via DEM by a combination of several GRASS GIS modules. Topographic map visualized based on DEM using ‘d.rast’ module. Isolines were plotted using GRASS modules 'r.contour ' and 'd.vect'. Vector modules of GRASS GIS were applied for displaying map elements: 'v.in.region', 'd.vect', 'v.info'. The slope and aspect maps based on DEM were plotted by module ‘r.slope.aspect’ and visualized by consecutive combination of modules: ‘d.rast’, ‘r.colors’, ‘d.legend’, ‘d.text’ and ‘d.grid’. Pairwise correlation scatterplot of two Landsat TM7 channels (10 and 20, and 50 and 70) was performed using command ‘d.correlate’. Applied code from the ‘r.mapcalc’ module was used for image calibration from DN to apparent radiance at sensor. Two maps showing land surface temperature for 2009 and 2004 were plotted by ‘r.mapcalc’. The resulting land surface temperature maps show an average increase in land surface temperature with a range of pixels with lower temperatures (water areas in lakes and forests) and higher temperatures (urban areas). Plotting land surface temperature map was undertaken to analyse variations in the climatic conditions derived from the images. GRASS GIS module ‘r.mapcalc’ was used to map changes in land surface temperature during 5 years. Results on the color composites of the satellite imageries showed natural and false color composites in vegetation and urban areas. Landsat TM band combinations were plotted by GRASS GIS ‘d.rgb’ module. Following band combinations were visualised: 1) color infrared with focus on vegetation (5-4-3); 2) natural color composites (1-2-3); 3) contrasting slopes for topography (4-5-7); 4) vegetation analysis (2-3-4); 5) focus on land/water borders (5-6-7). Presented studies demonstrated cartographic functionality of GRASS GIS specifically for Landsat TM image visualization and topographic spatial analysis and shown environmental visualization of the land surface temperature with regard to the variations in slope steepness and orientation (aspect). GRASS is effective and functional GIS for geographic studies using Landsat TM imagery.
+\end{abstract}
+
+\begin{keywords}
+	\kwd{GRASS GIS}
+	\kwd{shell script}
+	\kwd{cartography}
+	\kwd{mapping}
+	\kwd{Landsat TM}
+\end{keywords}
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}\label{Intro}
+Remote sensing data enable to obtain information on objects or areas by measuring their spectral reflectance measured at each pixel cell by GIS. Multi-temporal satellite images taken at different times and covering the same study area help to map differences in geographic variables (e.g. land cover, land surface temperature, land use, etc). The use of remote sensing data, such as Landsat TM, SPOT, MODIS, PROBA-V \citep{Fuster}, MERIS, SeaWiFS, ENVISAT, ASTER and other to model environmental changes and map land cover types is well established (\cite{Cammalleri}; \cite{Gobron}; \cite{Fensholt}; \cite{Tote}; \cite{Hewson}). Nowadays, current trends in cartographic data modelling and visualization presents the need to integrate GIS models with programming and IT discipline in order to apply scripting approaches enabling to rapidly operate with big datasets and general questions regarding machine learning techniques for big Earth data (\cite{Amanietal2019}, \cite{Lemenkova202103}, \cite{Baumannetal2015} \cite{Lemenkova202102}, \cite{Chenetal2015}). The complexity and interdependencies of the environmental system can only be represented by advanced data analysis which requires advanced algorithms of deep learning, machine learning and automatization in GIS, environmental and Earth science (\cite{DIMILILER2021103613}, \cite{Hanetal2019}, \cite{Lemenkova202003}, \cite{SALCEDOSANZ2020256}, \cite{ADRIAN2021215}, \cite{Lemenkova2019100}, \cite{ALIFU2020107365}, \cite{Lemenkova201995}, \cite{MATEOGARCIA20201}). 
+
+Remote sensing data and methods are one of the most important tools in environment, ecology and conservation for an effective monitoring of ecosystems in space and time \citep{ROCCHINI201757}. GRASS GIS provides a straightforward measure of spatial ecosystem complexity and estimation of key ecological patterns and processes: biodiversity estimation, forest structure, variable retrieval, feature extraction, edge detection and generation of multifractal surface as neutral models \citep{ROCCHINI2017166}. For example, the 'r.diversity' module of GRASS GIS is an effective tool for calculating landscape diversity using open source data using multiple indices at various spatial scales \citep{ROCCHINI201382}. 
+
+Repetitive coverage of the Landsat TM images at various time period is vital in change detection applications and models. At the same time, modeling topographic slopes and aspects derived from DEM covering the same study area as satellite image enable to perform comparative analysis showing correlation between temperature and relief, as well as slopes orientation. GRASS GIS is a powerful open source software with multiple modules enabling simulation, modeling, visualization, multi-source data analysis (raster, vector, satellite images, digitizing of scanned maps, etc.) and pixel-wise computations in a raster map (\cite{NetelerMitasova2008}, \cite{Neteler2001}). Many existing GIS present solutions for cartographic visualizations (\cite{Klauco2013}, \cite{Klauco2013b}; \cite{Suetovaetal2005a}; \cite{Kuhnetal2006}; \cite{Cauvin}; \cite{Gauger}). 
+
+However, the advantages fo GRASS GIS over other GIS software consist in several important points that should be mentioned. First, the scripting approach of GRASS GIS enables flexibility and convenience of data processing through full control of the commands via command line. Sequential combination of several GRASS GIS modules enables writing shell/bash scripts that can be then re-used as template algorithms for similar data processing which is important feature for research repeatability. Second, open source availability of the GRASS GIS presents clear advantages over existing commercial GIS. Third, extensive and constantly developing functionality of GRASS GIS present dozens well structured modules enabling various types of data analysis and structuring. Forth, one of the important tools of GRASS GIS is a series of modules for satellite image processing, analysis and mapping. Satellite images are the key data for the modern cartography \citep{Lemenkova202021}. Rapid automated processing such data using machine learning algorithm presents important step in cartographic development in the epoch of big data and analysis of large massifs of datasets. 
+
+Although automatization has already been a successful history in cartography (\cite{SchenkeLemenkova2008}; \cite{Bhattacharyya}; \cite{Lemenkova202101}, \cite{Lemenkova202106}, \cite{Gold}), there is always a need for further improvements of algorithms and methods. Hence, testing machine learning approaches in cartographic data processing and applying scripting is a vital step in development of GIS which is widely presented by GRASS GIS developers. As for satellite data processing, specifically for Landsat TM scenes, famous and widely used satellite imagery, GRASS GIS has special modules, such as ‘i.landsat.acca’ and ‘i.landsat.toar’. Image processing can furthermore be performed using numerous GRASS GIS refined modules for image processing used in this paper and discussed more detailed in following sections as well as in existing papers \citep{Lemenkova202026}. Use of GRASS GIS functionality for automated data processing through shell scripting enables to describe and visualize geographic phenomena, which finally contributes to our understanding of the geographic patterns and processes, as well as estimate the results of the environmental change through technical cartographic support \citep{Lemenkova202032}. Hence, current research presents GRASS GIS application for processing and visualization of the multi-temporal Landsat TM images aimed at environmental analysis.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Data and Region}\label{Data}
+
+The study uses the products of the Landsat mission, which is a joint initiative of NASA/ U.S. Geological Survey, initiated in 1972. The Landsat mission consisted of several satellites, launched by NASA (\href{https://www.usgs.gov/core-science-systems/nli/landsat/landsat-satellite-missions?qt-science_support_page_related_con=0#qt-science_support_page_related_con}{Landsat Satellite Missions}). Currently, the Landsat 9 is the most recently one, launched in September 2021). The Landsat TM satellites have various ground track coverage, differing in repeat cycles, ground coverage, swathing patterns and Path/Row designators due to the orbital differences. 
+
+Due to an orbital configuration, Landsat 7 travels from north to south around the Earth and provides a revisit time with an acquisition interval of 16 days covering the area of interest in a repeating ground coverage cycle (\href{https://www.usgs.gov/core-science-systems/nli/landsat/landsat-7?qt-science_support_page_related_con=0#qt-science_support_page_related_con}{Landsat 7 Instrument}). The Landsat 7 uses the Enhanced Thematic Mapper Plus (ETM+) instrument onboard, which is a fixed “whisk-broom”, 8-band, multispectral scanning radiometer. By employing the swath technique, Landsat 7 covers an area of 183 km with a 30 m spatial resolution for Bands 1 to 7 (\href{https://landsat.gsfc.nasa.gov/landsat-7/landsat-7-etm}{The Enhanced Thematic Mapper Plus (ETM+)}). This ensure the repeatability of the Landsat scenes for the cartographic time series analysis and mapping land cover changes. 
+
+\begin{figure}[H]
+	\includegraphics[width=12cm]{Fig-1.jpg}
+\caption{Landsat ETM+ data capture using USGS GloVis. Source: author}\label{Fig-1}
+\end{figure}
+
+This study employed Landsat ETM+ data from the Landsat 7 satellite mission captured through the GloVis USGS website distributing Landsat TM/ETM+ imagery (Fig. \ref{Fig-1}). Specifically, the data include two images taken on different time period with a time span of five years (19 May 2009 and September 10 2004). The images covering the eastern region of China, Yellow Sea, Qingdao area, Shandong Province were used in the analysis. Shandong is a coastal province of East China region, with a capital of Jinan and major city of Qingdao. It is located on the eastern edge of the North China Plain which covers an area of ca. $409,500 km^2$, most of which is <50 m above sea level. The exact study area lies within coordinates [36°58'53.47"N, 117°43'04.04"E (NW); 36°41'04.13"N, 119°45'30.10"E (NE); 35°24'00.22"N, 117°16'43.18"E (SW); 35°06'31.50"N, 119°16'49.26"E (SE)]. 
+
+The study area is one of the most urbanised and densely populated regions in China and in the world (\cite{Fanetal2019}, \cite{Zhangetal2021}, \cite{Chenetal2016}, \cite{Fangetal2021a}). The built environment of the Shandong Peninsula includes strong urbanisation economies, intensive infrastructure development, and processes of urban attraction. These results in high environmental pressure including resource consumption and air pollution \cite{Fangetal2021b}. The highest levels of urbanisation in 20 coastal cities in Shandong Peninsual around the Bohai and Yellow Sea include the top three cities with the emergent levels of urban pressure and pollution: Tianjin, Qingdao and Dalian \citep{Hanetal2021}.
+
+Geographically, the Shandong Province of China is represented by the dominated semi- and temperature monsoon climate marked with seasonal variations, favourable for planting agricultural areas of different crop types. The agriculture in eastern China includes a wide variety of species  on the yellow-soil plains, including, e.g. sorghum \citep{su10103428}, fruits, ornamental plants, vegetables \citep{WANG2020881}, tobacco \citep{LIU2021144879}, wine, cotton (\cite{PEMSL200728}, \cite{LI2021126750}) and maize (\cite{YU2021106649}, \cite{ZOU2021126304}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{Methods and Samples}\label{Methods}
+The methodology is based on using GRASS GIS, version 7.6 \cite{Neteler2000}, an open source GIS developed since 1982 and continuously updated. GRASS (Geographical Resources Analysis Support System) GIS, was selected as a main software in this research. GRASS is a multipurpose GIS, with data organized as raster and vector maps, provides a wide range of tools to support most of the GIS functionality \cite{NetelerMitasova2008}. 
+
+\begin{figure}[H]
+	\includegraphics[width=12cm]{Fig-2.jpg}
+\caption{GRASS GIS running ‘gdalinfo’ utility by GDAL (left) and metadata on Landsat TM image by ‘r.info’ in GRASS GIS (right). Source: author}\label{Fig-2}
+\end{figure}
+
+First, the data were read into the GRASS GIS environment using 'r.in.gdal' module and metadata of the Landsat TM scenes were checked up by GDAL \cite{GDAL} via ‘gdalinfo’ (Fig. \ref{Fig-2}, left). The metadata show general cartographic information of the scenes: coordinate system (UTM, zone 50N, WGS84 datum), resolution in pixel size (30 m), corner coordinates in WESN format. The next step included using ‘g.region’ module (Fig. \ref{Fig-2}, right) which shows the settings of the current geographic region and applies the boundary definitions for the display monitor (module ‘d.mon’). Information about each scene was then obtained from ‘r.info’ module (Fig. \ref{Fig-2}, right), which shows statistics on raster image. 
+
+The next step includes creating color composites that were generated from the GRASS GIS project (Fig. \ref{Fig-3}, left) after the raster data were listed using module ‘g.list rast’ and necessary Landsat TM band triplets were selected and visualized using a sequence of following modules (Fig. \ref{Fig-3}, right): 
+ 
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-3.jpg}
+\caption{GRASS GIS console listing raster files in a dataset  (left) and script for generating color composites of the Landsat TM image by ‘d.rgb’ module of GRASS GIS (right). Source: author}\label{Fig-3}
+\end{figure}
+
+‘d.mon’ (for display of the monitor in GRASS system), ‘d.erase’ (to clean up the previous image on the display), ‘d.rgb’ (for combination of the RGB triplets and their overlay in the active graphics frame), ‘d.text’ (for texts annotations). The resulting combinations of the Landsat TM scenes are visualized on Fig. \ref{Fig-4}. Topographic mapping is presented on base of the available DEM (Fig. \ref{Fig-5}, right) using GRASS GIS script consisting of several following modules (Fig. \ref{Fig-5}, left). 
+
+\begin{enumerate}
+ 	\item The main relief map with 'elevation' color pallette table was plotted using 'd.rast lsat7\_2009\_DEM' command, Fig. \ref{Fig-5}, right.
+	\item The isolines were modeled using generic function ‘r.contour’ of GRASS GIS by ‘r.contour lsat7\_2009\_DEM out=Topo\_DEM step=200 –overwrite’ command. Here, the contours from a raster map were interpolated at every 200 m interval. The 
+resulted set of vector lines was visualized by GRASS module ‘d.vect’: d.vect Topo\_DEM color='brown' width=0, Fig. \ref{Fig-5}, right.
+	\item The grid was added on the map using GRASS GIS command: 'd.grid -w size=0.5 color=white border\_color=yellow width=0.1 fontsize=8 text\_color=blue bgcolor=white', where the size=0.5 shows the step of the grid. Grid on the map is an important element enabling determination of the coordinates of any point, therefore, the step of 0,5 was selected and the labels were added with a background to make them distinguishable, Fig. 5, right. 
+	 \item The border of the region as a thin red line depicting bounding box vector square based on a raster map was added using a sequence of following commands: v.in.region output=Topo\_DEM\_bbox (here the vector polygon was generated from the region extent); g.list vect (here the list of available vector files was displayed); v.info map=Topo\_DEM\_bbox (the information on the new vector is read); d.vect Topo\_DEM\_bbox color=red width=3 fill\_color="none" (f).inally the vector line was added on the map, Fig. \ref{Fig-5}, right.
+	 \item The title was annotated using piping command: d.title map=lsat7\_2009\_DEM | d.text text="Topography: Qingdao area" color="red" size=5, followed by 'd.text text="DEM" color=blue size=2.0 font="Trebuchet MS"', Fig. \ref{Fig-1}, right.
+ \end{enumerate}
+
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-4.jpg}
+\caption{Landsat TM7 band combinations, by GRASS ‘d.rgb’ module. Source: author}\label{Fig-4}
+\end{figure}
+
+Modelling topographic slopes (Fig. \ref{Fig-6}, left) shows steeper and gentler slopes used for  environmental monitoring. Thus, the highly weathered materials and boulders along intermontane valley slope and high-intensity rainfalls can lead to the hazardous geologic events, such as landslide occurrences in the landforms with steep slopes. The steep slopes of the landforms are always prone to landslide occurrences. Slope is one of the most important attributes and variables in the landslide analysis. The presence of slope is the prerequisite for landslide occurrences because gravitational force is tangential to the surface is required to generate the shearing stress. The hill-shaded DEM of Qingdao area was used to study the most important geomorphometric parameters, such as slope, aspect of the land surface. As can be seen (Fig. \ref{Fig-6}, left), the study area of Qingdao region presents following landform types: a dissected terrain comprising moderately elevated hills (10°-17°, blue colored areas), steep slopes (17°-45°, bright purple colored areas), gentle lopes (0°-3°, light green colored areas), moderate hills (3°-6°, cyan colored areas), narrow-deep valleys formed by the weathering and erosion of the local river system (7°-10°, light blue colored areas) flowing in eastwards into the Yellow Sea. 
+
+Following slope modelling, an aspect of the geographical orientation of the compass was plotted (Fig. \ref{Fig-6}, right) aimed at visualizing WESN orientation of the slopes in the study area. Modelling and cartographic visualizing of the land surface topography and bathymetry is useful to asses the processes of runoff and erosion which depend on the topographic morphometrics. Modelling of slope, aspect, profile curvature and tangential curvature was performed using following GRASS GIS code: ‘r.slope.aspect elevation=lsat7\_2009\_DEM slope=Qslope aspect=Qaspect pcurvature=Qpcurv tcurvature=Qtcurv’. Other cartographic elements were plotted by following code snippets:
+
+\begin{enumerate}
+ 	\item display slope map: g.region raster=lsat7\_2009\_DEM -p
+	\item display and clean up monitor: d.mon wx1; d.erase
+	\item set up colors: r.colors -a map=Qslope color=rainbow
+	\item display raster: d.rast Qslope
+	\item add legend: d.legend raster=Qslope title=Slope,grad title\_fontsize=8 font=Arial fontsize=8 -t -b bgcolor=white label\_step=15 border\_color=gray thin=8
+	\item annotate texts: d.text text="Slope map" color=blue size=3.0 font="Trebuchet MS"
+	\item add border: v.in.region output=Topo\_DEM\_bbox; g.list vect; v.info map=Topo\_DEM\_bbox; d.vect Topo\_DEM\_bbox color=red width=3 fill\_color="none"
+	\item add grid: d.grid -w size=0.5 color=grey border\_color=yellow width=0.1 fontsize=8 text\_color=blue bgcolor=white
+ \end{enumerate}
+ 
+ As can be seen (Fig. 6, right), the majority of the slope orientation has North-East direction (bright orange colored slopes with 270°-360°) followed by North-West direction (180°-270°). Gentle slopes have a low frequency of landslides due to the lower shear stress associated with low gradients. Hence, contour isolines (200 m interval) of the topographic map (Fig. \ref{Fig-5}, right) were compared with slope and aspect orientation for geomorphometric analysis and the homogeneous unit of the slope angle and aspect were noted (Fig. \ref{Fig-6}). 
+ 
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-5.jpg}
+\caption{Shell script used for GRASS GIS mapping, visualised in Xcode (left). Topographic map based on DEM, Landsat TM 2009 by GRASS GIS (right). Source: author}\label{Fig-5}
+\end{figure}
+
+Since the channels of a multispectral Landsat TM satellite sensor span a multi-dimensional coordinate system, there is a correlation between the channels, visualized on Fig. \ref{Fig-7} for selected channels of Landsat TM 2009. Within this 3D coordinate system, a.k.a. 'feature space' in machine learning, every pixel has a certain position depending on its brightness levels in each channel. So, in GIS concepts, feature space is defined by Landsat TM sensor channels. This position can be presented as a vector in the multi-dimensional coordinate system. Hence, the feature space of two channels was visualized using also auxiliary GRASS modules (‘d.mon wx0’ and ‘d.erase’ for operating with displays). The correlation was then visualized by GRASS GIS module 'd.correlate' used for plotting pairwise correlation in raster: ‘d.correlate map=lsat7\_2009\_10,lsat7\_2009\_20’ (aerosol and visible blue) and ‘d.correlate map=lsat7\_2009\_50,lsat7\_2009\_70’ (near-infrared, short wavelength infrared). This module (‘d.correlate’) displays the correlation between raster data layers as a scattergram showing results of ‘r.stats’ analysis of two rasters (Fig. \ref{Fig-7}).  
+
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-6.jpg}
+\caption{Slope map (left) and aspect map (right) based on DEM, GRASS. Source: author}\label{Fig-6}
+\end{figure}
+
+The next step includes radiometric preprocessing which was applied to the raw Landsat TM image, because initially each pixel shows the apparent radiance measured at the satellite sensor \cite{GSFC}. The initial values were checked from the channel headers using ‘r.info’ GRASS module and ‘gdalinfo’ by GDAL (\cite{GDAL}. Further notices on image processing and principles of radiometric calibration are given by \cite{Schowengerdt}. The linear effects were corrected, since pixel values represent a linear transformation of the original data, and they needed to fit into range of 8 bit (0-255). 
+
+Image calibration from the DN to apparent radiance at sensor was done using ‘r.mapcalc’ module \cite{Shapiro}, which was made using applied code \cite{NetelerMitasova2008}: r.mapcalc "lsat7\_2009\_10.rad= ((19.0 - (-6.2))/(255.0 - 1.0)) * (lsat7\_2009\_10 - 1.0) + (-6.2)’, followed by inspection of the resulted raster: ‘r.info -r lsat7\_2009\_10.rad’ which gave the following results: min=-6.2992125984252; max=19. 
+Landsat-TM7 satellite provides special thermal channel (No. 6) containing thermal information. Therefore, the data delivered by a thermal channel was calibrated to a surface temperature maps (Fig. \ref{Fig-8} and Fig. \ref{Fig-9}). These surface temperatures demonstrated ground surface temperature, not air temperature. 
+
+There is a well-known association of land use-land cover variables with land surface temperature described in previous publications \cite{Abdramaneetal2018}; \cite{Akinbobola2019}; \cite{Barbierato}; \cite{Dash}; \cite{Fu}. Surface temperature maps (Fig. \ref{Fig-8} for 2009 and Fig. \ref{Fig-9} for 2004) were mapped using Landsat-TM7 channel 6 was created using ‘r.mapcalc’ function.
+
+The calculations applied from existing algorithms developed by \cite{NetelerMitasova2008} show temperatures (Landsat TM7) of which were computed under an assumption of calibration physical constants and physical properties of the atmosphere. First, the correction (gain/bias) values are applied to the thermal channel to receive spectral radiances using existing algorithms \cite{Barsietal2003}; \cite{NetelerMitasova2008}. The re-calculated pixel values were then converted to absolute temperature in Kelvin (Fig. \ref{Fig-8} and Fig. \ref{Fig-9}, left). Third, the results were re-calculated to a degree Celsius temperature map by ‘r.mapcalc’, (Fig. \ref{Fig-8} and Fig. \ref{Fig-9}). 
+ 
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-7.jpg}
+\caption{Pairwise correlation scatterplot of two Landsat TM7 channels, plotted using GRASS GIS ‘d.correlate’ module: channels 10 and 20, and 50 and 70. Source: author}\label{Fig-7}
+\end{figure}
+
+The resulting land surface temperature maps ((Fig. \ref{Fig-8} and Fig. \ref{Fig-9}), right) show an average land surface temperature in Celsius degrees with a range of pixels with lower temperatures (water areas in lakes and forests) and higher temperatures (urban areas). A yellow-to-red color tables was applied for the visualized map for the 19 May 2009 and 10 September 2004. This map shows the distributed emitted thermal radiation in degree Celsius in general color scale for positive temperatures from 0° to 40°. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results and Discussion}\label{Res}
+
+The practical application of GRASS GIS is demonstrated in this paper by a case study of Landsat TM images processing, the details of which are summarized in Methodology section. The presented research benefitted from GRASS GIS modular architecture, since multiple models were integrated into a single script for plotting maps (Fig. 1-9). Results on the color composites of the satellite imageries showed natural and false color composites in vegetation and urban areas plotted by ‘d.rgb’ module of GRASS GIS. Following combinations were visualized: 1) color infrared with focus on vegetation (bands 5-4-3); 2) natural color composites (bands 1-2-3); 3) contrasting slopes for topography (bands 4-5-7); 4) vegetation analysis (bands 2-3-4); 5) focus on land/water borders (bands 5-6-7).
+
+Technical flexibility of GRASS GIS is demonstrated by four case studies: 1) color composites; 2) topographic DEM visualization and modelling its derivatives (slope and aspect); 3) plotting correlation of spectral channels; 4) modelling land surface temperature based on the Landsat TM Band short-wave Infrared (SWIR) 6 with wavelengths of 10.40-12.50 µm and with 30 m spatial resolution. Using GRASS GIS, several scripts applying modules for raster data processing () was applied and output maps visualized (e.g. Fig. 5, 8 and 9). GRASS GIS scripting console was used for testing and integrating modules (Fig. 2 and 3). 
+
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-8.jpg}
+\caption{GRASS GIS shell script for mapping (left) and resulted map (right): Land Surface Temperature map for 19 May 2009 by ‘r.mapcalc’  GRASS module. Source: author}\label{Fig-8}
+\end{figure}
+
+Global Visualization Viewer (GloVis) USGS external data source was used for downloading Landsat TM scenes through selecting study area by coordinates, viewing metadata and image capture.  Presented illustrations of the GRASS GIS data analysis aim to comparatively overlay raster maps visualizing models from multiple different disciplines such as topography and geomorphology (Fig. 5 and 6), environment and climate change (Fig. 8 and 9) as well as remote sensing data and technical aspects of Landsat TM bands (Fig. 4 and 7). In addition to the integration of geography, GIS and machine learning (IT), the application of GRASS GIS scripting approach for cartographic mapping aims to enable advanced geospatial analysis. 
+
+Presented paper demonstrated functionality of GRASS GIS software which proved to be excellent cartographic software for geospatial modelling that includes a wide variety of tasks: advanced raster data conversion and importing, geodetic warping and re-projections, statistical data processing, cartographic design, geomorphometric analysis and modelling, visualization and project management. As a special remark it should be mentioned that GRASS GIS gives support in a number of ways. The GRASS GIS has an extensive help function which enables cartographer to select necessary module and information about the meaning of flags and arguments. The GRASS GIS has various resources as tutorial dataset which assist in mastering GIS, including vector and raster free data and documentation for native scripting language implemented in GRASS GIS. 
+
+\begin{figure}[t]
+	\includegraphics[width=12cm]{Fig-9.jpg}
+\caption{GRASS GIS shell script used for mapping (left) and resulted map (right): Land Surface Temperature map for 10 September 2004 by ‘r.mapcalc’  GRASS GIS module.  Source: author}\label{Fig-9}
+\end{figure}
+
+Visualization of the slope and aspect settings enables to show level of landform borders (horst, grabens as main landforms). Mapping slope gradient and its deriatives (profile and tangential curvature, aspect) can be used for modelling hierarchical landforms classifications. The importance of the geomorphic modelling consists in fundamental nature of the relief, which shows vertical dissection of the terrain. Remote sensing-based mapping is used to highlight  geomorphological features and relief on the surfaces by means of image processing. Hence, the interpretative cartographic visualization uses instrumental observations for thematic mapping based on spatio-temporal sensor observations \cite{FRIGERI20111265}. Slope steepness characterises the amplitude of the terrain dissection which is correlated with geomorphological development that in turn is affected by processes of the tectonic movements \cite{Longley}. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Conclusions}\label{Con}
+
+GRASS GIS demonstrated in this paper proved to be effective GIS with functionality for processing raster Landsat TM images through scripting approach. Besides cartographic functionality, GRASS GIS has certain technical advantages since its supporting modules are available for many operating systems (MacOS, Windows, Linux). Furthermore, GRASS GIS functionality can be accessed through a Python and R programming language interface widely used in geosciences, \cite{Knox}; \cite{Lemenkova201991}, \cite{White}, \cite{McKinney}, making it possible to integrate GIS functionality into specific tasks of the GIS based spatial analysis, which includes satellite image processing. Example of the image processing using geoinformation tools for ecological applications consists in image classification. Besides landform classification, the classification of remote sensing images  for retrieval of information needed for environmental analysis (e.g. land cover or land use types maps, vegetation or soil maps) is  based on clustering pixels of spatial entities within a spectral space \cite{ROCCHINI2013128}. 
+
+Since GRASS GIS is an open source GIS, its developers can improve, fix, and customize the actual code and port it to new operating systems and create new modules both for vector and raster data processing. GRASS GIS supports a variety of raster and vector formats, some of which are native to the GRASS GIS executable, while others were accessed through the GDAL/OGR libraries via ‘r.in.gdal’ module, necessary to import raster data formats directly into GRASS GIS. Access through GDAL libraries adds an extra level of communication between GRASS GIS and the data source itself and increase its flexibility on data processing. 
+
+As many GIS benefit from an integrated and multi-source data processing for modelling and visualization of the modeled geographic phenomena through satellite image analysis (e.g. Landsat TN, MODIS, ASTER, Pleiades, Sentinel-2), integrating modules for distributed data analysis through scripting approach is increasingly useful. There are multiple ways of performing scripting integration in cartography, from adhering to plugins directly to GIS, e.g. Python plugin at QGIS to developing console based around in a GIS structure, such as in GMT \cite{Lemenkova201994}, \cite{Lemenkova2019107} or GRASS GIS. The advantages of using coding in GIS consists in its re-usability which assures achieving a reusable approach in cartography. Since scripts are applicable for further data processing using the template of the initial script (in this case, a GRASS GIS scripts) and using new data, the advantage becomes clear. However, the multi-disciplinary approach in GIS combining shell scripting and geographic spatial analysis can be a challenge, as this requires a GIS user do have a background in programming algorithms and require certain skills in shell scripting, logic and principles of general data analysis, which can be applied to support GIS methods at the advanced level.
+
+As a contribution to the development of cartographic research at advanced level, this paper presented the use of GRASS GIS and a GDAL library for thematic processing of the Landsat TM images. Several scripts used for mapping are included as Xcode screenshots. GRASS GIS console print screens are presented as illustrations and workflow explained stepwise on the left and the resulting map on the right for illustration of the approach. GRASS GIS supports both GUI and console based data input and processing as the employing a modular architecture where models are designed for vector and raster data processing and visualization, instead of directly manipulation with data as in GUI based GIS, e.g. ArcGIS, eCognition, ILWIS GIS, Erdas Imagine, or geomorphometric analysis used in geosciences \cite{Klauco2014}, \cite{Klauco2017}; \cite{Torcivia2020}; Lemenkova, 2015a, \cite{Lemenkova202030}, \cite{Lemenkova202019}. 
+
+As demonstrated in this research, GRASS GIS was used to take the Landsat TM multi-temporal data covering 5-year time span, perform a calculation using ‘r.mapcalc’ module and demonstrated variations in land surface temperature changed during five-year period. Besides, several color composites were tested using ‘d.rgb’ GRASS GIS module and visualized with aim to demonstrate usability of Landsat TM scenes for land/water analysis (distinguishability, analysis of land cover types or topographic surface mapping). The presented research contributes both to the technical development of the cartographic methods and to the geoinformatics studies focused on scripting approach in data visualisation.
+
+%% Acknowledgements %%
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{acknowledgement}[title={Acknowledgments}]
+The author is thankful to the anonymous reviewer and the Editor-in-Chief, Prof. Dr. G. Dzemyda from the Institute of Data Science and Digital Technologies,
+Vilnius University, for review, commenting and editing of this manuscript. 
+\end{acknowledgement}
+
+%% Funding %%
+%%%%%%%%%%%%%%%%%%%%%%
+%\begin{funding}
+%\end{funding}
+
+%% Bibliography %%
+%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{infor}
+\bibliography{GRASS}
+
+\end{document} 
